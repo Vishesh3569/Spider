@@ -1,0 +1,120 @@
+/* Modal container */
+.create-group-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #1a1a1a; /* Sleek black background */
+  color: #ffffff; /* White text for readability */
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7); /* Strong shadow for 3D effect */
+  border-radius: 10px; /* Rounded corners for modern feel */
+  width: 400px;
+}
+
+/* Modal title */
+.create-group-modal h3 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Input fields */
+.create-group-modal input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 5px;
+  background-color: #333333; /* Darker input field */
+  color: #ffffff;
+  outline: none;
+}
+
+/* User list styling */
+.create-group-modal .user-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 10px 0;
+  max-height: 120px; /* Limit height */
+  overflow-y: auto; /* Scrollable if content overflows */
+}
+
+.create-group-modal .user-list li {
+  padding: 8px 10px;
+  margin-bottom: 5px;
+  background-color: #2a2a2a; /* Subtle gray background for items */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.create-group-modal .user-list li:hover {
+  background-color: #404040; /* Lighter shade on hover */
+  transform: translateY(-2px); /* Subtle lift for 3D effect */
+}
+
+/* Selected users list */
+.create-group-modal .selected-users {
+  margin-top: 20px;
+}
+
+.create-group-modal .selected-users h4 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.create-group-modal .selected-users ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.create-group-modal .selected-users li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  background-color: #2a2a2a;
+  border-radius: 5px;
+}
+
+/* Remove button for selected users */
+.create-group-modal .selected-users button {
+  background-color: #e63946; /* Bright red for contrast */
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px #b32a34; /* 3D button effect */
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.create-group-modal .selected-users button:hover {
+  background-color: #ff4d5b;
+  transform: translateY(-2px);
+}
+
+/* Create group button */
+.create-group-modal button {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #4caf50; /* Green for success */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px #367c39; /* 3D button shadow */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+}
+
+.create-group-modal button:hover {
+  background-color: #66bb6a;
+  transform: translateY(-3px); /* Lift effect on hover */
+}

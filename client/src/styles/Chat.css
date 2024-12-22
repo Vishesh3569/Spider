@@ -1,0 +1,70 @@
+/* Chat Window Styles */
+.chat-window {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    background-color: #181818;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  
+  /* Chat Messages */
+  .chat-message {
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    background-color: #2c3e50;
+    border-radius: 20px;
+    max-width: 60%;
+    color: #ecf0f1;
+    word-wrap: break-word;
+  }
+  
+  .chat-message.self {
+    background-color: #3498db; /* Blue for sent messages */
+    align-self: flex-end;
+  }
+  
+  .chat-message .sender {
+    font-weight: bold;
+    color: #ecf0f1;
+  }
+  
+  .chat-message .message {
+    color: #ecf0f1;
+    font-size: 16px;
+    margin-top: 5px;
+  }
+  
+  /* Message Input and Send Button */
+  .message-controls {
+    display: flex;
+    align-items: center;
+    padding-top: 10px;
+  }
+  
+  .message-controls input {
+    flex-grow: 1;
+    padding: 12px;
+    border-radius: 20px;
+    border: 1px solid #444;
+    background-color: #333;
+    color: #fff;
+    font-size: 16px;
+    margin-right: 10px;
+    outline: none;
+  }
+  
+  .message-controls button {
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .message-controls button:hover {
+    background-color: #0056b3;
+  }
+  

@@ -1,0 +1,59 @@
+/* Apply styles only to the login page */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    background-color: black; /* Set background to black */
+  }
+  
+  .login-container form {
+    background-color: #222; /* Dark background for the form */
+    padding: 40px; /* Increase padding for a larger form */
+    border-radius: 10px; /* Rounded corners */
+    width: 350px; /* Increased width for a larger form */
+    text-align: center;
+  }
+  
+  .login-container form h1 {
+    color: white; /* White text for the title */
+    margin-bottom: 30px; /* Increased margin for more space between title and inputs */
+    font-size: 24px; /* Larger font size for the title */
+  }
+  
+  .login-container form input {
+    width: 100%;
+    padding: 12px; /* Increased padding inside inputs */
+    margin: 15px 0; /* Larger margin between inputs */
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #333;
+    color: white;
+    font-size: 16px; /* Larger text inside input fields */
+  }
+  
+  .login-container form input::placeholder {
+    color: #888;
+  }
+  
+  .login-container form button {
+    width: 100%;
+    padding: 12px; /* Increased padding for the button */
+    background: linear-gradient(to right, red, black); /* Red to black gradient */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px; /* Increased font size for the button */
+    margin-top: 15px; /* Increased space between button and input fields */
+    transition: background-color 0.3s ease;
+  }
+  
+  .login-container form button:hover {
+    background: linear-gradient(to right, darkred, black); /* Darker shade on hover */
+  }
+  
+  .login-container form button:focus {
+    outline: none;
+  }
+  
