@@ -1,8 +1,8 @@
 
 # **Spider Chat Application**
 
-Greetings from **Spider R&D Club**!  
-This project is a simple **chat application** built as part of the development process for Spider R&D. Below is the overview of the current features, the setup instructions, and pending improvements.
+Greetings from Spider R&D Club!
+This project is being developed as part of the Spider R&D selection process. So far, I have completed the Login, Signup, and Chat Application functionalities. Below is the overview of the current progress, setup instructions, and pending improvements.
 
 ---
 
@@ -97,6 +97,4 @@ Ensure you have the following installed on your system:
 
 This project is being developed as part of the selection process for **Spider R&D Club**. Thank you for reviewing my progress!
 
----
 
-Let me know if you'd like to add or modify any details in the README.
