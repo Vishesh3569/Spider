@@ -64,7 +64,7 @@ Ensure you have the following installed on your system:
 
 4. **Start the Backend Server**:
    ```bash
-   npm run server
+   node server.js
    ```
 
 5. **Start the Frontend**:
