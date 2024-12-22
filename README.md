@@ -1,6 +1,3 @@
-Here’s a **README.md** file for your project that includes all the details you mentioned and is formatted professionally for your GitHub repository:
-
----
 
 # **Spider Chat Application**
 
