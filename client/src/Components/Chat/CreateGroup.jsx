@@ -7,7 +7,6 @@ const CreateGroup = ({ currentUser, onGroupCreated }) => {
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [groupName, setGroupName] = useState("");
-  
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -31,16 +30,16 @@ const CreateGroup = ({ currentUser, onGroupCreated }) => {
     if (groupName.trim() && selectedUsers.length > 0) {
       const participants = selectedUsers.map((user) => user._id);
       participants.push(currentUser.id); // Add current user to the participants list
-  
 
       axios
         .post("http://localhost:8080/api/chat/create-group", {
           name: groupName,
           participants,
+          admin: currentUser.id, // Add the current user as the admin
         })
         .then((response) => {
           console.log("Group Created:", response.data); // Debug log
-          onGroupCreated(response.data.room);
+          onGroupCreated(response.data.savedRoom); // Use savedRoom from response
           setGroupName("");
           setSelectedUsers([]);
         })
@@ -51,7 +50,6 @@ const CreateGroup = ({ currentUser, onGroupCreated }) => {
       alert("Please provide a group name and select participants.");
     }
   };
-  
 
   return (
     <div className="create-group-modal">

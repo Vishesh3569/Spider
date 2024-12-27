@@ -10,6 +10,19 @@ const ChatPage = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isCreateGroupOpen, setCreateGroupOpen] = useState(false);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        setCurrentUser(decodedToken);
+      } catch (error) {
+        console.error("Error decoding token", error);
+      }
+    }
+  }, []);
+
   const handleOpenCreateGroup = () => {
     setCreateGroupOpen(true);
   };
@@ -20,35 +33,20 @@ const ChatPage = () => {
 
   const handleGroupCreated = (newGroup) => {
     setCreateGroupOpen(false);
-    setSelectedChat(newGroup); // Optionally, open the new group automatically
+    setSelectedChat(newGroup);
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        setCurrentUser(decodedToken); // Set user data from the decoded JWT token
-      } catch (error) {
-        console.error("Error decoding token", error);
-      }
-    }
-  }, []);
-
   const handleSelectChat = (chat) => {
-    console.log("Selected Chat:", chat);
     setSelectedChat(chat);
   };
 
   if (!currentUser) {
-    return <div>Loading...</div>; // You can add a loading spinner or redirect here
+    return <div>Loading...</div>;
   }
 
   return (
     <div id="chat-app">
       <div className="chat-page">
-        {/* "New Group" Button */}
         <button className="new-group-btn" onClick={handleOpenCreateGroup}>
           New Group
         </button>
@@ -66,7 +64,7 @@ const ChatPage = () => {
             <Chat selectedChat={selectedChat} currentUser={currentUser} />
           ) : (
             <div className="no-chat-selected">
-              <h3>Select a user to start a new chat</h3>
+              <h3>Select a chat or group to start</h3>
             </div>
           )}
         </div>

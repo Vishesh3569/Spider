@@ -4,46 +4,48 @@ import "./Sidebar.css";
 
 function Sidebar({ currentUser, onSelectChat }) {
   const [search, setSearch] = useState("");
-  const [chats, setChats] = useState([]); // Store the chats with participants
-  const [users, setUsers] = useState([]); // Store the search results for users
-  const [groups, setGroups] = useState([]); // Store groups if needed
+  const [chats, setChats] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [oneOnOneChats, setOneOnOneChats] = useState([]); // State for 1-on-1 chats
 
-  // Fetch chats and groups on component mount
   useEffect(() => {
     const fetchChatsAndGroups = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/chat/${currentUser.id}`);
-       
-  
-        // Extract participants and ensure they have the required properties
-        const allParticipants = response.data.flatMap((chat) => chat.participants.map((participant) => ({
-          ...participant,
-          name: participant.name || "Unknown User", // Assign a fallback name if not provided
-        })));
+        // Fetch group chats
+        const response = await axios.get(
+          `http://localhost:8080/api/chat/groupChats/${currentUser.id}`
+        );
+        const allGroups = response.data;
+        setGroups(allGroups);
 
-        
-  
-        // Remove duplicates based on `_id`
-        const uniqueParticipants = [
-          ...new Map(allParticipants.map((participant) => [participant._id, participant])).values(),
-        ];
+        // Fetch 1-on-1 chats
+        const oneOnOneResponse = await axios.get(
+          `http://localhost:8080/api/chat/one-on-one/${currentUser.id}`
+        );
 
-  
-        setChats(uniqueParticipants); // Store unique participants in the chats state
-        const gdata=response.data.filter((chat) => chat.participants.length > 2);
-        
-        setGroups(gdata); // Handle groups (optional)
-        
+        // Remove duplicate participants
+        const uniqueChats = oneOnOneResponse.data.reduce((acc, chat) => {
+          const otherParticipant = chat.participants.find(
+            (participant) => participant._id !== currentUser.id
+          );
+          if (
+            otherParticipant &&
+            !acc.some((c) => c.participantId === otherParticipant._id)
+          ) {
+            acc.push({ participantId: otherParticipant._id, name: otherParticipant.name, chat });
+          }
+          return acc;
+        }, []);
+        setOneOnOneChats(uniqueChats);
       } catch (error) {
         console.error("Error fetching chats and groups:", error);
       }
     };
-  
+
     fetchChatsAndGroups();
   }, [currentUser]);
-  
 
-  // Handle search input changes
   const handleSearchChange = async (e) => {
     const query = e.target.value;
     setSearch(query);
@@ -51,41 +53,24 @@ function Sidebar({ currentUser, onSelectChat }) {
     if (query.length >= 3) {
       try {
         const response = await axios.get("http://localhost:8080/api/users/search", {
-          params: { name: query }, // Send query as the name
+          params: { name: query },
         });
-        setUsers(response.data); // Update search results
+        setUsers(response.data);
       } catch (error) {
         console.error("Error searching users:", error);
       }
     } else {
-      setUsers([]); // Clear search results if query is less than 3 characters
+      setUsers([]);
     }
   };
 
-  // Select a user for 1-on-1 chat
-  const handleSelectUser = (user) => {
-    // Check if the user is already in the chats list
-    const existingChat = chats.find((chat) => chat._id === user._id);
-  
-    if (!existingChat) {
-      // Ensure the user object has the required properties (like `name`)
-      const newUser = {
-        ...user,
-        name: user.name || "Unknown User", // Assign a fallback name if not provided
-      };
-  
-      // Add the new user to the chats state
-      setChats([...chats, newUser]);
-    }
-  
-    onSelectChat(user); // Select the chat for the user
-  };
-  
+  const handleSelectUser = (chat) => {
 
-  // Select a group chat
+    onSelectChat(chat);
+  };
+
   const handleSelectGroup = (group) => {
-
-    onSelectChat(group); // Pass selected group chat
+    onSelectChat(group);
   };
 
   return (
@@ -95,24 +80,26 @@ function Sidebar({ currentUser, onSelectChat }) {
         className="search-bar"
         placeholder="Search or start new chat"
         value={search}
-        onChange={handleSearchChange} // Update search on change
+        onChange={handleSearchChange}
       />
-      
-      <h3>Chats</h3>
-      <ul className="chat-list">
-        {chats.map((user) => (
-          <li key={user._id} onClick={() => handleSelectUser(user)}>
 
-            <span>{user.name}</span>
-          </li>
-        ))}
-      </ul>
+      <h3>1-on-1 Chats</h3>
+      {oneOnOneChats.length > 0 ? (
+        <ul className="chat-list">
+          {oneOnOneChats.map(({ participantId, name, chat }) => (
+            <li key={participantId} onClick={() => handleSelectUser(chat)}>
+              <span>{name || "Unknown"}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No one-on-one chats available.</p>
+      )}
 
       <h3>Search Results</h3>
       <ul className="user-list">
         {users.map((user) => (
           <li key={user._id} onClick={() => handleSelectUser(user)}>
-
             <span>{user.name}</span>
           </li>
         ))}
@@ -131,5 +118,3 @@ function Sidebar({ currentUser, onSelectChat }) {
 }
 
 export default Sidebar;
-
-

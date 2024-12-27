@@ -10,6 +10,7 @@ const jwt = require("jsonwebtoken");
 const userAuthRoutes = require("./routes/userAuth");
 const userRoutes = require("./routes/userRoutes");
 const message=require("./routes/message");
+const rooms=require('./routes/room');
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use("/api/chat", require("./routes/chat"));
 app.use("/api/room", require("./routes/room"));
 app.use('/api/users', userRoutes);
 app.use('/api/chat/history',message);
+app.use('/api/new',rooms);
 
 const server = http.createServer(app);
 const io = new Server(server, {
