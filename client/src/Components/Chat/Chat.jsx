@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import "./Chat.css";
+import ParticipantsModal from './ParticipantsModal'; 
 
 let socket;
 
@@ -13,28 +14,24 @@ function Chat({ selectedChat, currentUser }) {
   const [participants, setParticipants] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // New states for search functionality
-  const [searchQuery, setSearchQuery] = useState(""); // For user search
-  const [searchResults, setSearchResults] = useState([]); // To hold search results
+  const [file, setFile] = useState(null);  // New state for file upload
+  const [fileUrl, setFileUrl] = useState(null);  // URL for uploaded file
+  const [contextMenu, setContextMenu] = useState(null);
+  const [messageToDelete, setMessageToDelete] = useState(null); 
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false); // Modal visibility state
 
- 
 
   const selectedUserId =
     selectedChat && selectedChat.participants && selectedChat.participants.length === 2
-      ? selectedChat.participants.find((p) => p._id !== currentUser.id)._id // For 1-on-1 chats, find the other participant
+      ? selectedChat.participants.find((p) => p._id !== currentUser.id)._id
       : selectedChat && !selectedChat.participants
-      ? selectedChat._id // If it's a user (no participants field), use the user _id
+      ? selectedChat._id
       : null;
 
-
-
-const selectedRoomId =
-  selectedChat && selectedChat.participants && selectedChat.participants.length > 2
-    ? selectedChat._id  // For group chats, use the chat ID as room ID
-    : null; // For group chat, get the room ID
-
-
-
+  const selectedRoomId =
+    selectedChat && selectedChat.participants && selectedChat.participants.length > 2
+      ? selectedChat._id
+      : null;
 
   useEffect(() => {
     if (selectedChat) {
@@ -42,7 +39,7 @@ const selectedRoomId =
         setIsGroupChat(true);
         setRoomName(selectedChat.name);
         setParticipants(selectedChat.participants.map((p) => p.user));
-        setIsAdmin(selectedChat.admin === currentUser.id); // Check if the user is admin
+        setIsAdmin(selectedChat.admin === currentUser.id);
       } else {
         setIsGroupChat(false);
       }
@@ -69,7 +66,6 @@ const selectedRoomId =
 
   useEffect(() => {
     if (selectedUserId) {
-      // Fetch chat history for 1-on-1 chat
       axios
         .get(`http://localhost:8080/api/chat/${currentUser.id}/one-on-one/${selectedUserId}`)
         .then((res) => {
@@ -77,145 +73,177 @@ const selectedRoomId =
         })
         .catch((err) => console.error("Error fetching 1-on-1 chat history:", err));
     } else if (selectedRoomId) {
-      // Fetch group chat history
       axios
         .get(`http://localhost:8080/api/chat/roomChat/history/${selectedRoomId}?userId=${currentUser.id}`)
         .then((res) => {
-          setChat(res.data.chats); // Assuming response has 'chats' property
+          setChat(res.data.chats);
         })
         .catch((err) => console.error("Error fetching group chat history:", err));
     }
   }, [selectedUserId, selectedRoomId, currentUser]);
-  
+
+  useEffect(() => {
+    socket.on("message_deleted", (messageId) => {
+      setChat((prevChat) => prevChat.filter((msg) => msg._id !== messageId));
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (contextMenu && !e.target.closest(".context-menu")) {
+        setContextMenu(null);  // Close context menu if click is outside
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [contextMenu]);
   
 
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+  
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+  
+    axios
+      .post("http://localhost:8080/api/files/upload", formData)
+      .then((res) => {
+        const { fileUrl } = res.data; // Get the file URL from the server
+
+        
+        setFileUrl(fileUrl);  // Save the file URL to state
+      })
+      .catch((err) => console.error("Error uploading file:", err));
+  };
+  
   const sendMessage = () => {
     if (!currentUser || (!selectedUserId && !selectedRoomId)) {
       console.log("No user or room selected.");
       return;
     }
   
-    if (message.trim() !== "") {
-      let chatMessage;
+    // Ensure the message and participants are included
+    if (message.trim() !== "" || fileUrl) {
+      console.log("fileUrl", fileUrl);  // Check fileUrl before sending the message
+      console.log("participants", participants);  // Check participants before sending
+      
+      // Ensure participants are included in the message
+      let chatMessage = {
+        sender: currentUser.id,
+        message: message.trim() !== "" ? message : "",  // Ensure message is at least an empty string
+        timestamp: new Date(),
+        fileUrl: fileUrl, // Add file URL if file is uploaded
+        fileName: file ? file.name : null, // Add file name
+        participants: selectedRoomId ? participants : [currentUser.id, selectedUserId]  // Add participants dynamically
+      };
   
-      if (selectedUserId) {
-        // One-on-one message format
-        chatMessage = {
-          participants: [currentUser.id, selectedUserId],
-          sender: currentUser.id,
-          message,
-          timestamp: new Date(),
-        };
-      } else if (selectedRoomId) {
-        // Group message format
-        chatMessage = {
-          participants, // Participants should be fetched from selectedRoomId
-          roomId: selectedRoomId,
-          sender: currentUser.id,
-          message,
-          timestamp: new Date(),
-        };
-      }
+      console.log("chatMessage", chatMessage); // Log the chat message to ensure it has all fields
   
+      // Send message with valid participants and message
       socket.emit("send_message", chatMessage);
-  
       setChat((prevChat) => [...prevChat, chatMessage]);
+      setMessage("");  // Clear message input
+      setFile(null);  // Clear the file input
+      setFileUrl(null);  // Clear file URL
+    }
+  };
   
-      setMessage("");
+  
+  const handleRightClick = (e, message) => {
+
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, message });
+    setMessageToDelete(message); 
+  };
+
+  // Handle "Delete" option click
+  const handleDeleteMessage = async () => {
+    if (!messageToDelete) return;
+
+    try {
+      // Send a request to the backend to delete the message
+
+      await axios.delete(`http://localhost:8080/api/delete/messages/${messageToDelete._id}`);
+
+      // Remove the message from frontend state
+      setChat((prevChat) => prevChat.filter((msg) => msg._id !== messageToDelete._id));
+
+      // Close the context menu
+      setContextMenu(null);
+    } catch (error) {
+      console.error("Error deleting message:", error);
     }
   };
   
 
-  // Function to toggle chat history
-  const toggleChatHistory = (allowChatHistory) => {
-    axios
-      .post(`http://localhost:8080/api/chat/toggle-history/${selectedRoomId}`, {
-        adminId: currentUser.id,
-        allowChatHistory,
-      })
-      .then((res) => {
-        console.log("Chat history toggled:", res.data);
-        alert(`Chat history is now ${allowChatHistory ? "enabled" : "disabled"} for new users.`);
-      })
-      .catch((err) => console.error("Error toggling chat history:", err));
+  const handleGroupNameClick = () => {
+    setShowParticipantsModal(true); // Show the modal when group name is clicked
   };
 
-  // Function to add participant by selecting from search results
-  const addParticipant = (newParticipantId) => {
-    if (!newParticipantId) {
-      alert("Please select a valid participant.");
-      return;
-    }
 
-    axios
-      .post(`http://localhost:8080/api/chat/room/${selectedRoomId}/add-participant`, {
-        adminId: currentUser.id,
-        newParticipantIds: [newParticipantId],
-      })
-      .then((res) => {
-        console.log("Participant added:", res.data);
-        alert("Participant added successfully!");
-      })
-      .catch((err) => {
-        console.error("Error adding participant:", err);
-        alert("There was an error adding the participant.");
+  const leaveGroup = async () => {
+    try {
+      // Send request to backend to leave the group
+
+
+      await axios.post("http://localhost:8080/api/chat/leave-group", {
+        userId: currentUser.id,
+        roomId: selectedRoomId,
       });
+
+      // Remove the user from the participants list
+      setParticipants((prevParticipants) =>
+        prevParticipants.filter((participant) => participant._id !== currentUser.id)
+      );
+
+      // Optionally, handle removing the user from the UI or redirect to another page
+      // For example, navigate to another chat or show a confirmation message
+
+      alert("You have left the group.");
+    } catch (err) {
+      console.error("Error leaving the group:", err);
+      alert("Error leaving the group.");
+    }
   };
 
-  // Fetch users based on search query
-  useEffect(() => {
-    if (searchQuery) {
-      axios
-        .get(`http://localhost:8080/api/chat/search-users/${searchQuery}`)
-        .then((res) => setSearchResults(res.data))
-        .catch((err) => console.error("Error searching for users:", err));
-    } else {
-      setSearchResults([]); // Clear search results when query is empty
+  const renderLeaveButton = () => {
+    if (isGroupChat) {
+      return (
+        <button className="leave-group-btn" onClick={leaveGroup}>
+        Leave Group
+      </button>
+      );
     }
-  }, [searchQuery]);
+  };
+  
+  
+    
+
+  
 
   return (
     <div className="chat-window">
-      <h2>{isGroupChat ? `Group Chat: ${roomName}` : "1-on-1 Chat"}</h2>
-
-      {isAdmin && isGroupChat && (
-        <div className="admin-controls">
-          {/* Search for users to add to the group */}
-          <input
-            type="text"
-            placeholder="Search for a participant"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-
-          {searchResults.length > 0 && (
-            <ul className="search-results">
-              {searchResults.map((user) => (
-                <li key={user._id}>
-                  <button onClick={() => addParticipant(user._id)}>
-                    {user.name} ({user.email})
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {/* Toggle chat history */}
-          <button onClick={() => toggleChatHistory(true)}>Enable History</button>
-          <button onClick={() => toggleChatHistory(false)}>Disable History</button>
-        </div>
-      )}
+      <h2 onClick={handleGroupNameClick}>{isGroupChat ? `Group Chat: ${roomName}` : "1-on-1 Chat"}</h2>
 
       <div className="chat-messages">
         {chat.map((msg, index) => (
           <div
             key={index}
             className={`chat-message ${msg.sender === currentUser.id ? "self" : ""}`}
+            onContextMenu={(e) => handleRightClick(e, msg)}
           >
-            <span className="sender">
-              {msg.sender === currentUser.id ? "You" : msg.sender}
-            </span>
+            <span className="sender">{msg.sender === currentUser.id ? "You" : msg.sender}</span>
             <div className="message">{msg.message}</div>
+            {msg.fileUrl && (
+              <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer">
+                Download {msg.fileName}
+              </a>
+            )}
             <span className="timestamp">
               {new Date(msg.timestamp).toLocaleTimeString([], {
                 hour: "2-digit",
@@ -225,14 +253,43 @@ const selectedRoomId =
           </div>
         ))}
       </div>
+
       <div className="message-controls">
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type a message..."
         />
+        <input type="file" onChange={handleFileChange} />
         <button onClick={sendMessage}>Send</button>
       </div>
+
+        {/* Context Menu for Delete */}
+      {contextMenu && (
+        <div
+          style={{
+            position: "absolute",
+            top: contextMenu.y,
+            left: contextMenu.x,
+            backgroundColor: "white",
+            border: "1px solid #ccc",
+            padding: "10px",
+            boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+          }}
+        >
+          <button onClick={handleDeleteMessage}>Delete Message</button>
+        </div>
+      )}
+      {renderLeaveButton()}
+
+    {/* Participants Modal */}
+    {showParticipantsModal && (
+        <ParticipantsModal
+          participants={participants}
+          onClose={() => setShowParticipantsModal(false)}
+        />
+      )}
+
     </div>
   );
 }

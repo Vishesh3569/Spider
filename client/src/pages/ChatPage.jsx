@@ -4,11 +4,18 @@ import Chat from "../Components/Chat/Chat";
 import { jwtDecode } from "jwt-decode"; // Use named import now
 import "../styles/chatPage.css";
 import CreateGroup from "../Components/Chat/CreateGroup";
+import Profile from "../Components/Profile";
 
 const ChatPage = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [isCreateGroupOpen, setCreateGroupOpen] = useState(false);
+
+  const [showProfile, setShowProfile] = useState(false);
+
+  const toggleProfile = () => {
+    setShowProfile((prev) => !prev);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,6 +53,16 @@ const ChatPage = () => {
 
   return (
     <div id="chat-app">
+       <button onClick={toggleProfile} className="profile-button">Show Profile</button>
+       {showProfile && (
+        <div className="profile-modal">
+          <div className="profile-modal-content">
+            <Profile />
+            <button className="close-modal" onClick={toggleProfile}>Close</button>
+          </div>
+        </div>
+      )}
+
       <div className="chat-page">
         <button className="new-group-btn" onClick={handleOpenCreateGroup}>
           New Group

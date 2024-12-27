@@ -11,6 +11,8 @@ const userAuthRoutes = require("./routes/userAuth");
 const userRoutes = require("./routes/userRoutes");
 const message=require("./routes/message");
 const rooms=require('./routes/room');
+const fileRoutes = require("./routes/fileRoute");
+const deleteMessage=require("./routes/delete");
 
 dotenv.config();
 
@@ -26,6 +28,8 @@ app.use("/api/room", require("./routes/room"));
 app.use('/api/users', userRoutes);
 app.use('/api/chat/history',message);
 app.use('/api/new',rooms);
+app.use("/api/files", fileRoutes);
+
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -34,6 +38,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
+app.use("/api/delete",deleteMessage(io));
 
 // Middleware for authentication
 // io.use((socket, next) => {
@@ -67,13 +72,25 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", async (data) => {
     try {
-      const { participants, sender, message, timestamp, roomId } = data;
+      const { participants, sender, message, fileUrl, fileName, timestamp, roomId } = data;
+
   
-      // Save the message to the database
+      // If no message is provided, set it to an empty string
+      const messageText = message.trim() !== "" ? message : null;  // If message is empty, set to null
+  
+      // If both message and fileUrl are empty, don't save the message
+      if (!messageText && !fileUrl) {
+        console.log("No message or file to send.");
+        return;
+      }
+  
+      // Save the message to the database with either a valid message or fileUrl
       const chatMessage = new Chat({
-        participants, // Save participants array
+        participants,
         sender,
-        message,
+        message: messageText,  // Save the message if it's not empty
+        fileUrl: fileUrl || null, // Save file URL if provided, else null
+        fileName, // Save the file name if provided
         timestamp,
       });
   
@@ -96,6 +113,22 @@ io.on("connection", (socket) => {
       console.error("Error saving message:", error);
     }
   });
+  
+
+  socket.on("delete_message", async (messageId) => {
+    try {
+      // Delete the message from the database
+      const deletedMessage = await Chat.findByIdAndDelete(messageId);
+
+      if (deletedMessage) {
+        // Broadcast to all clients that the message has been deleted
+        io.emit("message_deleted", messageId);
+      }
+    } catch (error) {
+      console.error("Error deleting message:", error);
+    }
+  });
+  
   
 
   socket.on("disconnect", () => {

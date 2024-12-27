@@ -1,0 +1,55 @@
+.modal-overlay {
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent dark overlay */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background-color: #333; /* Dark background */
+    color: white; /* Light text */
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px; /* Adjust width if needed */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8); /* Add some shadow for depth */
+  }
+  
+  .modal-content ul {
+    list-style-type: none;
+    padding: 0;
+    background-color: black; /* Keep the background dark */
+    margin: 0;
+  }
+  
+  .modal-content ul li {
+    margin: 10px 0;
+    padding: 10px;  /* Add padding to make the text stand out more */
+    background-color: #444; /* Slightly lighter background for each participant */
+    color: #ddd; /* Lighter text color for better readability */
+    border-radius: 4px;
+    font-weight: bold; /* Make participant names bold */
+  }
+  
+  .modal-content ul li:hover {
+    background-color: #555; /* Highlight each list item on hover */
+  }
+  
+  .modal-content button {
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px; /* Add margin to separate the button */
+  }
+  
+  .modal-content button:hover {
+    background-color: #555;
+  }
+  

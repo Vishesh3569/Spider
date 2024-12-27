@@ -313,6 +313,34 @@ router.post("/create/one-on-one", async (req, res) => {
   }
 });
 
+router.post("/leave-group", async (req, res) => {
+  const { userId, roomId } = req.body; // Use roomId instead of groupId
+
+  
+  try {
+    // Find the room by ID
+    const room = await Room.findById(roomId);
+
+    if (!room) {
+      return res.status(404).json({ message: "Room not found." });
+    }
+
+    // Remove the user from the participants array
+    room.participants = room.participants.filter(
+      (participant) => participant.user.toString() !== userId
+    );
+
+    await room.save(); // Save the updated room
+
+    res.status(200).json({ message: "You have left the group successfully." });
+  } catch (err) {
+    console.error("Error leaving the group:", err);
+    res.status(500).json({ message: "Error leaving the group." });
+  }
+});
+
+
+
 
 
 module.exports = router;

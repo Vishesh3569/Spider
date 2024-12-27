@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getUserProfile } from "../services/authService"; // Your API service to fetch the profile
+import './Profile.css'; // Import the CSS for styling
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -34,12 +35,22 @@ const Profile = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div>
-      <h2>Profile</h2>
+    <div className="profile-container">
+      <h2 className="profile-title">Profile</h2>
       {user && (
-        <div>
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
+        <div className="profile-details">
+          <div className="profile-item">
+            <strong>Name:</strong> {user.name}
+          </div>
+          <div className="profile-item">
+            <strong>Email:</strong> {user.email}
+          </div>
+          <div className="profile-item">
+            <strong>Username:</strong> {user.username}
+          </div>
+          <div className="profile-item">
+            <strong>Bio:</strong> {user.bio || "No bio available."}
+          </div>
         </div>
       )}
     </div>
