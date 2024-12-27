@@ -1,0 +1,4 @@
+config/service-account-key.json # Add the service account key to .gitignore
+config/service-account-key.json # This adds the file to the .gitignore
+config/service-account-key.json
+.env
