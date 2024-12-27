@@ -1,17 +1,14 @@
-
-
-// Initialize Google Cloud Storage
-
-
+require("dotenv").config();
 const { Storage } = require("@google-cloud/storage");
 const path = require("path");
 
+// Initialize Google Cloud Storage with environment variables
 const storage = new Storage({
-  keyFilename: path.join(__dirname, "/service-account-key.json"),
-  projectId: "dogwood-terra-446009-m7",
+  keyFilename: path.resolve(__dirname, "../config", process.env.GOOGLE_CLOUD_KEYFILE),
+  projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
 });
 
-const bucket = storage.bucket("my-spider-project");
+const bucket = storage.bucket(process.env.GOOGLE_CLOUD_BUCKET_NAME);
 
 const uploadFileToBucket = async (file) => {
   const { originalname, buffer } = file;
@@ -37,5 +34,3 @@ const uploadFileToBucket = async (file) => {
 };
 
 module.exports = { uploadFileToBucket };
-
-  

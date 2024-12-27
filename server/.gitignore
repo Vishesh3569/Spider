@@ -1,2 +1,4 @@
 node_modules/
 .env
+# Ignore Google Cloud service account key
+config/service-account-key.json
