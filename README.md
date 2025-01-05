@@ -10,24 +10,27 @@ This project is being developed as part of the Spider R&D selection process. So 
 ### 1. User Authentication System
 - Implemented secure signup and sign-in functionality using RESTful APIs.
 - Ensured secure password storage with bcrypt for hashing.
-- Built using the MERN stack for seamless integration between frontend and backend.
 
 ### 2. Real-Time Chat System
-- Developed an instant messaging system using WebSockets with Socket.IO.
+- Developed an instant messaging system within each workspace using WebSockets with Socket.IO.
 - Features include:
   - Support for group chats where participants can join and leave freely.
   - Admin functionality to toggle whether newer members can view past chat history.
   - Sending text messages, emojis, and viewing chat history.
-- Built using the MERN stack for real-time communication and user interface.
 
 ### 3. File Storage and Sharing
 - Enabled users to upload and download files within a workspace.
+- Implemented a simple file management system to organize shared files.
 - Integrated Google Cloud for blob storage to ensure efficient file handling.
 
 ## Technologies Used
 - **Frontend and Backend**: MERN Stack (MongoDB, Express.js, React, Node.js).
 - **Real-Time Communication**: WebSockets with Socket.IO.
 - **File Storage**: Google Cloud (blob storage).
+
+## Important Notes
+- The backend server is configured to run on port `8080`. **Ensure that you start the server on this port** to avoid configuration issues.
+- The project uses Google Cloud for file storage. To protect sensitive information, the Google Cloud credential file has been excluded from the repository (e.g., using `.gitignore`). You will need to set up your own credentials for the project to function properly.
 
 ## Installation
 1. Clone the repository:
@@ -36,30 +39,36 @@ This project is being developed as part of the Spider R&D selection process. So 
    ```
 2. Navigate to the project directory:
    ```bash
-   cd Spider
+   cd spider
    ```
 3. Install dependencies:
    ```bash
    npm install
    ```
-4. Set up environment variables for authentication, WebSocket server, and Google Cloud integration.
-5. Start the development server:
+4. Set up environment variables:
+   - Ensure the backend server runs on port `8080`.
+   - Add Google Cloud credentials for blob storage.
+5. Start the backend server:
    ```bash
-   npm start
+   node server.js
+   ```
+6. Start the frontend:
+   ```bash
+   npm run client
    ```
 
 ## Usage
-- Access the app via your local server (e.g., `http://localhost:3000`).
-- **Run the server on Port 8080
+- Access the application via your browser.
 - Sign up or log in to explore the features.
 
 ## Future Improvements
-- Adding video and voice chat functionality.
+- Adding video chat functionality.
 - Enhanced file preview and search options.
 - Advanced admin controls for user and file management.
 
 ## Contributing
 Contributions are welcome! Please fork the repository and create a pull request for review.
+
 
 
 
