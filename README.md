@@ -2,7 +2,7 @@
 # **Spider Web Application**
 
 Greetings !
-This project is being developed as part of the Spider R&D selection process. So far, I have completed the Login, Signup, and Chat Application functionalities. Below is the overview of the current progress, setup instructions, and pending improvements.
+This project is being developed as part of the Spider R&D selection process. Below is the overview of the current progress, setup instructions, and pending improvements.
 
 
 ## Features
