@@ -20,7 +20,6 @@ This project is being developed as part of the Spider R&D selection process. Bel
 
 ### 3. File Storage and Sharing
 - Enabled users to upload and download files within a workspace.
-- Implemented a simple file management system to organize shared files.
 - Integrated Google Cloud for blob storage to ensure efficient file handling.
 
 ## Technologies Used
@@ -39,7 +38,7 @@ This project is being developed as part of the Spider R&D selection process. Bel
    ```
 2. Navigate to the project directory:
    ```bash
-   cd spider
+   cd Spider
    ```
 3. Install dependencies:
    ```bash
